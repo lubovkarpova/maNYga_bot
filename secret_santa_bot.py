@@ -403,7 +403,7 @@ async def assign(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                 if recommendations:
                                     message += f"\n\n💡 Tips: {recommendations}"
                                 break
-                        message += "\n\n(This is a kid without Telegram) 🎁"
+                        message += "\n\n📝 Note: This is a kid without Telegram 🎁"
                 else:
                     # Multiple assignments (adult + kid/kids)
                     message = "🎅🎁✨ Your Secret Santa assignments:\n\n"
@@ -430,6 +430,8 @@ async def assign(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             
                             if receiver_recommendations:
                                 message += f"   💡 Tips: {receiver_recommendations}\n"
+                            if assignment['type'] == "child":
+                                message += "   📝 Note: This is a kid without Telegram 🎁\n"
                             message += "\n"
                         else:
                             # This is a kid assignment
@@ -452,6 +454,8 @@ async def assign(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             
                             if receiver_recommendations:
                                 message += f"   💡 Tips: {receiver_recommendations}\n"
+                            if assignment['type'] == "child":
+                                message += "   📝 Note: This is a kid without Telegram 🎁\n"
                             message += "\n"
                 
                 await context.bot.send_message(chat_id=uid, text=message)
@@ -544,6 +548,8 @@ async def my_assignment(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     
                     if receiver_recommendations:
                         message += f"   💡 Tips: {receiver_recommendations}\n"
+                    if assignment['type'] == "child":
+                        message += "   📝 Note: This is a kid without Telegram 🎁\n"
                     message += "\n"
                 else:
                     # This is a kid assignment
@@ -566,6 +572,8 @@ async def my_assignment(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     
                     if receiver_recommendations:
                         message += f"   💡 Tips: {receiver_recommendations}\n"
+                    if assignment['type'] == "child":
+                        message += "   📝 Note: This is a kid without Telegram 🎁\n"
                     message += "\n"
         
         await update.message.reply_text(message)
