@@ -121,7 +121,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "📦 Rule: give something you'd smile at (or explain later)"
     )
     
-    await update.message.reply_text(welcome_text, parse_mode='Markdown')
+    await update.message.reply_text(welcome_text)
 
 
 async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
