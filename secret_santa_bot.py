@@ -233,6 +233,7 @@ async def add_child_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start adding a child"""
     try:
         user_id = update.effective_user.id
+        logger.info(f"User {user_id} started adding a child")
         
         if data.assigned:
             await update.message.reply_text(
@@ -243,6 +244,7 @@ async def add_child_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "🎁 What's the kid's name? We'll handle the rest. 🎅✨"
         )
+        logger.info(f"User {user_id} is now in REGISTERING_CHILD state")
         return REGISTERING_CHILD
     except Exception as e:
         logger.error(f"Error in add_child_start: {e}", exc_info=True)
@@ -256,7 +258,9 @@ async def add_child_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def register_child_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Process child name"""
     try:
+        user_id = update.effective_user.id
         name = update.message.text.strip()
+        logger.info(f"User {user_id} provided child name: {name}")
         
         if len(name) < 2:
             await update.message.reply_text(
@@ -271,6 +275,7 @@ async def register_child_name(update: Update, context: ContextTypes.DEFAULT_TYPE
             "🎅 Any recommendations for this kid's Secret Santa? 🎁\n"
             "(What would they like? Toys, books, interests... or just say 'surprise me!') ✨"
         )
+        logger.info(f"User {user_id} is now in ASKING_CHILD_RECOMMENDATIONS state")
         return ASKING_CHILD_RECOMMENDATIONS
     except Exception as e:
         logger.error(f"Error in register_child_name: {e}", exc_info=True)
@@ -284,18 +289,21 @@ async def register_child_name(update: Update, context: ContextTypes.DEFAULT_TYPE
 async def process_child_recommendations(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Process recommendations for child's Secret Santa"""
     try:
+        user_id = update.effective_user.id
         recommendations = update.message.text.strip()
         name = context.user_data.get('child_name', '')
+        logger.info(f"User {user_id} provided recommendations for child {name}: {recommendations}")
         
         if not name:
+            logger.error(f"Child name missing for user {user_id}")
             await update.message.reply_text(
                 "❌ Something went wrong. Please try /add_small_human again. 🎄"
             )
             return ConversationHandler.END
         
         # Автоматически назначаем текущего пользователя как опекуна
-        user_id = update.effective_user.id
         data.add_child(name, user_id, recommendations)
+        logger.info(f"Child {name} added successfully for guardian {user_id}")
         
         await update.message.reply_text(
             f"✅ Got it! {name} is in. 🎁🎉\n"
@@ -662,10 +670,12 @@ def main():
         entry_points=[CommandHandler("add_small_human", add_child_start)],
         states={
             REGISTERING_CHILD: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, register_child_name)
+                MessageHandler(filters.TEXT & ~filters.COMMAND, register_child_name),
+                CommandHandler("cancel", cancel)
             ],
             ASKING_CHILD_RECOMMENDATIONS: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, process_child_recommendations)
+                MessageHandler(filters.TEXT & ~filters.COMMAND, process_child_recommendations),
+                CommandHandler("cancel", cancel)
             ],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
