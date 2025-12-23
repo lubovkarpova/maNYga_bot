@@ -385,7 +385,7 @@ async def assign(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     message = (
                         f"🎅🎁✨ Your Secret Santa assignment:\n\n"
                         f"You ({assignment['giver_name']}) are gifting to:\n"
-                        f"🎅 {assignment['gives_to']} 🎄"
+                        f"👤 {assignment['gives_to']} 🎄"
                     )
                     # Добавляем рекомендации, если получатель - взрослый
                     if assignment['type'] == "adult":
@@ -411,6 +411,9 @@ async def assign(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         adult_names = [adult["name"] for adult in data.adults.values()]
                         if assignment['giver_name'] in adult_names:
                             # This is an adult assignment
+                            message += f"🎅 You ({assignment['giver_name']}) are gifting to:\n"
+                            message += f"   👤 {assignment['gives_to']} 🎄\n"
+                            
                             # Находим рекомендации получателя
                             receiver_recommendations = ""
                             if assignment['type'] == "adult":
@@ -418,21 +421,37 @@ async def assign(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                     if adult_data["name"] == assignment['gives_to']:
                                         receiver_recommendations = adult_data.get("recommendations", "")
                                         break
+                            else:
+                                # Получатель - ребенок
+                                for child in data.children:
+                                    if child["name"] == assignment['gives_to']:
+                                        receiver_recommendations = child.get("recommendations", "")
+                                        break
                             
-                            message += f"🎅 You ({assignment['giver_name']}) are gifting to:\n   {assignment['gives_to']} 🎄\n"
                             if receiver_recommendations:
                                 message += f"   💡 Tips: {receiver_recommendations}\n"
                             message += "\n"
                         else:
                             # This is a kid assignment
-                            message += f"🎁 {assignment['giver_name']} is gifting to:\n   {assignment['gives_to']} 🎁\n"
-                            # Добавляем рекомендации, если получатель - ребенок
-                            for child in data.children:
-                                if child["name"] == assignment['gives_to']:
-                                    recommendations = child.get("recommendations", "")
-                                    if recommendations:
-                                        message += f"   💡 Tips: {recommendations}\n"
-                                    break
+                            message += f"🎁 {assignment['giver_name']} is gifting to:\n"
+                            message += f"   👤 {assignment['gives_to']} 🎁\n"
+                            
+                            # Добавляем рекомендации получателя
+                            receiver_recommendations = ""
+                            if assignment['type'] == "adult":
+                                for adult_uid, adult_data in data.adults.items():
+                                    if adult_data["name"] == assignment['gives_to']:
+                                        receiver_recommendations = adult_data.get("recommendations", "")
+                                        break
+                            else:
+                                # Получатель - ребенок
+                                for child in data.children:
+                                    if child["name"] == assignment['gives_to']:
+                                        receiver_recommendations = child.get("recommendations", "")
+                                        break
+                            
+                            if receiver_recommendations:
+                                message += f"   💡 Tips: {receiver_recommendations}\n"
                             message += "\n"
                 
                 await context.bot.send_message(chat_id=uid, text=message)
@@ -480,7 +499,7 @@ async def my_assignment(update: Update, context: ContextTypes.DEFAULT_TYPE):
             message = (
                 f"🎅🎁✨ Your Secret Santa assignment:\n\n"
                 f"You ({assignment['giver_name']}) are gifting to:\n"
-                f"🎅 {assignment['gives_to']} 🎄"
+                f"👤 {assignment['gives_to']} 🎄"
             )
             # Добавляем рекомендации, если получатель - взрослый
             if assignment['type'] == "adult":
@@ -506,26 +525,47 @@ async def my_assignment(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 adult_names = [adult["name"] for adult in data.adults.values()]
                 if assignment['giver_name'] in adult_names:
                     # This is an adult assignment
-                    message += f"🎅 You ({assignment['giver_name']}) are gifting to:\n   {assignment['gives_to']} 🎄\n"
-                    # Добавляем рекомендации, если получатель - взрослый
+                    message += f"🎅 You ({assignment['giver_name']}) are gifting to:\n"
+                    message += f"   👤 {assignment['gives_to']} 🎄\n"
+                    
+                    # Находим рекомендации получателя
+                    receiver_recommendations = ""
                     if assignment['type'] == "adult":
                         for adult_uid, adult_data in data.adults.items():
                             if adult_data["name"] == assignment['gives_to']:
-                                recommendations = adult_data.get("recommendations", "")
-                                if recommendations:
-                                    message += f"   💡 Tips: {recommendations}\n"
+                                receiver_recommendations = adult_data.get("recommendations", "")
                                 break
+                    else:
+                        # Получатель - ребенок
+                        for child in data.children:
+                            if child["name"] == assignment['gives_to']:
+                                receiver_recommendations = child.get("recommendations", "")
+                                break
+                    
+                    if receiver_recommendations:
+                        message += f"   💡 Tips: {receiver_recommendations}\n"
                     message += "\n"
                 else:
                     # This is a kid assignment
-                    message += f"🎁 {assignment['giver_name']} is gifting to:\n   {assignment['gives_to']} 🎁\n"
-                    # Добавляем рекомендации, если получатель - ребенок
-                    for child in data.children:
-                        if child["name"] == assignment['gives_to']:
-                            recommendations = child.get("recommendations", "")
-                            if recommendations:
-                                message += f"   💡 Tips: {recommendations}\n"
-                            break
+                    message += f"🎁 {assignment['giver_name']} is gifting to:\n"
+                    message += f"   👤 {assignment['gives_to']} 🎁\n"
+                    
+                    # Добавляем рекомендации получателя
+                    receiver_recommendations = ""
+                    if assignment['type'] == "adult":
+                        for adult_uid, adult_data in data.adults.items():
+                            if adult_data["name"] == assignment['gives_to']:
+                                receiver_recommendations = adult_data.get("recommendations", "")
+                                break
+                    else:
+                        # Получатель - ребенок
+                        for child in data.children:
+                            if child["name"] == assignment['gives_to']:
+                                receiver_recommendations = child.get("recommendations", "")
+                                break
+                    
+                    if receiver_recommendations:
+                        message += f"   💡 Tips: {receiver_recommendations}\n"
                     message += "\n"
         
         await update.message.reply_text(message)
