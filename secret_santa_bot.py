@@ -176,7 +176,7 @@ async def add_child_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
     
     await update.message.reply_text(
-        "👶 Please send the kid's name:"
+        "👶 Name of the small human, please."
     )
     return REGISTERING_CHILD
 
