@@ -423,7 +423,7 @@ def main():
         fallbacks=[CommandHandler("cancel", cancel)],
     )
     
-    # Register handlers (new commands)
+    # Register handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(register_handler)
     application.add_handler(add_child_handler)
@@ -432,31 +432,6 @@ def main():
     application.add_handler(CommandHandler("my_mission", my_assignment))
     application.add_handler(CommandHandler("reset", reset))
     application.add_handler(CommandHandler("help", help_command))
-    
-    # Register old commands for backward compatibility
-    old_register_handler = ConversationHandler(
-        entry_points=[CommandHandler("register", register)],
-        states={
-            REGISTERING_ADULT: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, register_adult_name)
-            ],
-        },
-        fallbacks=[CommandHandler("cancel", cancel)],
-    )
-    old_add_child_handler = ConversationHandler(
-        entry_points=[CommandHandler("add_child", add_child_start)],
-        states={
-            REGISTERING_CHILD: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, register_child_name)
-            ],
-        },
-        fallbacks=[CommandHandler("cancel", cancel)],
-    )
-    application.add_handler(old_register_handler)
-    application.add_handler(old_add_child_handler)
-    application.add_handler(CommandHandler("list", list_participants))
-    application.add_handler(CommandHandler("assign", assign))
-    application.add_handler(CommandHandler("my_assignment", my_assignment))
     
     # Start the bot
     logger.info("Bot started!")
