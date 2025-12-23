@@ -25,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Состояния для ConversationHandler
-REGISTERING_ADULT, ASKING_RECOMMENDATIONS, REGISTERING_CHILD, WAITING_FOR_CHILD_GUARDIAN = range(4)
+REGISTERING_ADULT, ASKING_RECOMMENDATIONS, REGISTERING_CHILD, ASKING_CHILD_RECOMMENDATIONS, WAITING_FOR_CHILD_GUARDIAN = range(5)
 
 # Хранилище данных
 class SecretSantaData:
@@ -42,8 +42,8 @@ class SecretSantaData:
         """Get adult name by user_id"""
         return self.adults.get(user_id, {}).get("name", "")
     
-    def add_child(self, name: str, guardian_id: int):
-        self.children.append({"name": name, "guardian_id": guardian_id})
+    def add_child(self, name: str, guardian_id: int, recommendations: str = ""):
+        self.children.append({"name": name, "guardian_id": guardian_id, "recommendations": recommendations})
     
     def get_all_participants(self) -> List[str]:
         """Возвращает список всех участников (взрослые + дети)"""
@@ -224,16 +224,39 @@ async def register_child_name(update: Update, context: ContextTypes.DEFAULT_TYPE
         )
         return REGISTERING_CHILD
     
+    # Сохраняем имя во временные данные
     context.user_data['child_name'] = name
+    
+    await update.message.reply_text(
+        "🎅 Any recommendations for this kid's Secret Santa? 🎁\n"
+        "(What would they like? Toys, books, interests... or just say 'surprise me!') ✨"
+    )
+    return ASKING_CHILD_RECOMMENDATIONS
+
+
+async def process_child_recommendations(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Process recommendations for child's Secret Santa"""
+    recommendations = update.message.text.strip()
+    name = context.user_data.get('child_name', '')
+    
+    if not name:
+        await update.message.reply_text(
+            "❌ Something went wrong. Please try /add_small_human again. 🎄"
+        )
+        return ConversationHandler.END
+    
     # Автоматически назначаем текущего пользователя как опекуна
     user_id = update.effective_user.id
-    data.add_child(name, user_id)
+    data.add_child(name, user_id, recommendations)
     
     await update.message.reply_text(
         f"✅ Got it! {name} is in. 🎁🎉\n"
         f"We'll send you their assignment. 🎅\n\n"
         f"Current tally: {len(data.adults)} adults 🎄, {len(data.children)} kids 🎁"
     )
+    
+    # Очищаем временные данные
+    context.user_data.pop('child_name', None)
     
     return ConversationHandler.END
 
@@ -331,7 +354,15 @@ async def assign(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             message += "\n"
                         else:
                             # This is a kid assignment
-                            message += f"🎁 {assignment['giver_name']} is gifting to:\n   {assignment['gives_to']} 🎁\n\n"
+                            message += f"🎁 {assignment['giver_name']} is gifting to:\n   {assignment['gives_to']} 🎁\n"
+                            # Добавляем рекомендации, если получатель - ребенок
+                            for child in data.children:
+                                if child["name"] == assignment['gives_to']:
+                                    recommendations = child.get("recommendations", "")
+                                    if recommendations:
+                                        message += f"   💡 Tips: {recommendations}\n"
+                                    break
+                            message += "\n"
                 
                 await context.bot.send_message(chat_id=uid, text=message)
             except Exception as e:
@@ -388,6 +419,13 @@ async def my_assignment(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         message += f"\n\n💡 Tips: {recommendations}"
                     break
         if assignment['type'] == "child":
+            # Добавляем рекомендации, если получатель - ребенок
+            for child in data.children:
+                if child["name"] == assignment['gives_to']:
+                    recommendations = child.get("recommendations", "")
+                    if recommendations:
+                        message += f"\n\n💡 Tips: {recommendations}"
+                    break
             message += "\n\n(This is a kid without Telegram) 🎁"
     else:
         # Multiple assignments (adult + kid/kids)
@@ -408,7 +446,15 @@ async def my_assignment(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 message += "\n"
             else:
                 # This is a kid assignment
-                message += f"🎁 {assignment['giver_name']} is gifting to:\n   {assignment['gives_to']} 🎁\n\n"
+                message += f"🎁 {assignment['giver_name']} is gifting to:\n   {assignment['gives_to']} 🎁\n"
+                # Добавляем рекомендации, если получатель - ребенок
+                for child in data.children:
+                    if child["name"] == assignment['gives_to']:
+                        recommendations = child.get("recommendations", "")
+                        if recommendations:
+                            message += f"   💡 Tips: {recommendations}\n"
+                        break
+                message += "\n"
     
     await update.message.reply_text(message)
 
@@ -491,6 +537,9 @@ def main():
         states={
             REGISTERING_CHILD: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, register_child_name)
+            ],
+            ASKING_CHILD_RECOMMENDATIONS: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, process_child_recommendations)
             ],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
