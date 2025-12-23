@@ -107,18 +107,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = update.effective_user.first_name
     
     welcome_text = (
-        f"Hey, {name}! 🎅\n\n"
-        "I'm your Secret Santa bot!\n\n"
-        "Available commands:\n"
+        f"Hey, {name}! 🎁\n\n"
+        "This is MaNYGA — a Secret Santa for people who like giving gifts *and* keeping secrets (badly).\n\n"
+        "Use the commands below to join, mix, and pretend you didn't buy socks again.\n\n"
         "/im_in – I'm playing\n"
         "/add_small_human – Add a kid without Telegram\n"
         "/who_are_we – See the list of suspects\n"
         "/make_it_random – Assign gift pairs (admin only)\n"
         "/my_mission – Find out who you're buying for\n"
-        "/help – In case you forgot how this works"
+        "/help – In case you forgot how this works\n\n"
+        "🧦 Budget: up to 150₪\n"
+        "🎯 Goal: not perfection — just a bit of fun\n"
+        "🎄 Rule: no pressure, no hints, no names (unless it's funny)"
     )
     
-    await update.message.reply_text(welcome_text)
+    await update.message.reply_text(welcome_text, parse_mode='Markdown')
 
 
 async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
