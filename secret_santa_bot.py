@@ -141,7 +141,7 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
     
     await update.message.reply_text(
-        "📝 Please send your name for registration:"
+        "📝 Type your name — we'll keep it semi-secret. 🤫"
     )
     return REGISTERING_ADULT
 
