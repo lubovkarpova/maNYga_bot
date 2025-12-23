@@ -107,18 +107,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = update.effective_user.first_name
     
     welcome_text = (
-        f"Hey, {name}! 🎁\n\n"
-        "This is MaNYGA — Secret Santa for people who love giving gifts... and pretending it's anonymous.\n\n"
+        f"Hey, {name}! 🎁🎄✨\n\n"
+        "This is MaNYGA — Secret Santa for people who love giving gifts... and pretending it's anonymous. 🎅🎁\n\n"
         "Here's how it works:\n\n"
-        "/im_in – I'm playing\n"
-        "/add_small_human – Add a kid without Telegram\n"
-        "/who_are_we – See who's in the game\n"
-        "/make_it_random – Assign gift pairs (admin only)\n"
-        "/my_mission – Who you're gifting to\n"
-        "/help – In case you forgot what's going on\n\n"
-        "🧦 Budget: up to 150₪\n"
-        "🎯 Goal: no stress, just good surprises\n"
-        "📦 Rule: give something you'd smile at (or explain later)"
+        "/im_in – I'm playing 🎄\n"
+        "/add_small_human – Add a kid without Telegram 🎅\n"
+        "/who_are_we – See who's in the game ⛄\n"
+        "/make_it_random – Assign gift pairs (admin only) 🎁\n"
+        "/my_mission – Who you're gifting to 🎀\n"
+        "/help – In case you forgot what's going on 🦌\n\n"
+        "🎁 Budget: up to 150₪\n"
+        "🎄 Goal: no stress, just good surprises ✨\n"
+        "🎅 Rule: give something you'd smile at (or explain later) 🎉"
     )
     
     await update.message.reply_text(welcome_text)
@@ -130,18 +130,18 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if data.assigned:
         await update.message.reply_text(
-            "❌ Sorry, registration's closed — names have already been matched."
+            "❌ Sorry, registration's closed — names have already been matched. 🎄🎁"
         )
         return ConversationHandler.END
     
     if user_id in data.adults:
         await update.message.reply_text(
-            f"✅ You're already in — registered as: {data.adults[user_id]}"
+            f"✅ You're already in — registered as: {data.adults[user_id]} 🎉"
         )
         return ConversationHandler.END
     
     await update.message.reply_text(
-        "📝 What name should we use? Nicknames are fine. 🤫"
+        "🎄 What name should we use? Nicknames are fine. 🎅✨"
     )
     return REGISTERING_ADULT
 
@@ -153,14 +153,14 @@ async def register_adult_name(update: Update, context: ContextTypes.DEFAULT_TYPE
     
     if len(name) < 2:
         await update.message.reply_text(
-            "❌ That name's a bit too short. Try again?"
+            "❌ That name's a bit too short. Try again? 🎄"
         )
         return REGISTERING_ADULT
     
     data.add_adult(user_id, name)
     await update.message.reply_text(
-        f"✅ Welcome, {name}! You're in.\n"
-        f"Current tally: {len(data.adults)} adults, {len(data.children)} kids"
+        f"✅ Welcome, {name}! You're in. 🎉🎄\n"
+        f"Current tally: {len(data.adults)} adults 🎅, {len(data.children)} kids 🎁"
     )
     return ConversationHandler.END
 
@@ -171,12 +171,12 @@ async def add_child_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if data.assigned:
         await update.message.reply_text(
-            "❌ Too late — the game's already started."
+            "❌ Too late — the game's already started. 🎄🎁"
         )
         return ConversationHandler.END
     
     await update.message.reply_text(
-        "👶 What's the kid's name? We'll handle the rest."
+        "🎁 What's the kid's name? We'll handle the rest. 🎅✨"
     )
     return REGISTERING_CHILD
 
@@ -187,7 +187,7 @@ async def register_child_name(update: Update, context: ContextTypes.DEFAULT_TYPE
     
     if len(name) < 2:
         await update.message.reply_text(
-            "❌ That name's too short. Give it another shot."
+            "❌ That name's too short. Give it another shot. 🎄"
         )
         return REGISTERING_CHILD
     
@@ -197,9 +197,9 @@ async def register_child_name(update: Update, context: ContextTypes.DEFAULT_TYPE
     data.add_child(name, user_id)
     
     await update.message.reply_text(
-        f"✅ Got it! {name} is in.\n"
-        f"We'll send you their assignment.\n\n"
-        f"Current tally: {len(data.adults)} adults, {len(data.children)} kids"
+        f"✅ Got it! {name} is in. 🎁🎉\n"
+        f"We'll send you their assignment. 🎅\n\n"
+        f"Current tally: {len(data.adults)} adults 🎄, {len(data.children)} kids 🎁"
     )
     
     return ConversationHandler.END
@@ -208,24 +208,24 @@ async def register_child_name(update: Update, context: ContextTypes.DEFAULT_TYPE
 async def list_participants(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show list of all participants"""
     if not data.adults and not data.children:
-        await update.message.reply_text("📋 No one's joined yet. Just us, the silence, and a bot.")
+        await update.message.reply_text("🎄 No one's joined yet. Just us, the silence, and a bot. 🎄✨")
         return
     
-    text = "📋 Here's who's playing:\n\n"
+    text = "🎄 Here's who's playing:\n\n"
     
     if data.adults:
-        text += "👨‍💼 Adults:\n"
+        text += "🎅 Adults:\n"
         for i, (uid, name) in enumerate(data.adults.items(), 1):
-            text += f"{i}. {name}\n"
+            text += f"{i}. {name} 🎄\n"
         text += "\n"
     
     if data.children:
-        text += "👶 Kids:\n"
+        text += "🎁 Kids:\n"
         for i, child in enumerate(data.children, 1):
             guardian_name = data.adults.get(child["guardian_id"], "Unknown")
-            text += f"{i}. {child['name']} (added by {guardian_name})\n"
+            text += f"{i}. {child['name']} (added by {guardian_name}) 🎅\n"
     
-    text += f"\nTotal: {len(data.adults)} adults, {len(data.children)} kids"
+    text += f"\nTotal: {len(data.adults)} adults 🎅, {len(data.children)} kids 🎁"
     
     await update.message.reply_text(text)
 
@@ -237,22 +237,22 @@ async def assign(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Check admin rights
     if ADMIN_ID and user_id != ADMIN_ID:
         await update.message.reply_text(
-            "❌ This one's for the admin. You know who you are."
+            "❌ This one's for the admin. You know who you are. 🎅🎄"
         )
         return
     
     if data.assigned:
         await update.message.reply_text(
-            "⚠️ Assignments are already done.\n"
-            "Need a reset? Use /reset (admin only)."
+            "⚠️ Assignments are already done. 🎁\n"
+            "Need a reset? Use /reset (admin only). 🎄"
         )
         return
     
     total_participants = len(data.adults) + len(data.children)
     if total_participants < 2:
         await update.message.reply_text(
-            "❌ Need at least 2 people to make this work.\n"
-            "Otherwise, it's just... gifting to yourself."
+            "❌ Need at least 2 people to make this work. 🎅\n"
+            "Otherwise, it's just... gifting to yourself. 🎁➡️🎁"
         )
         return
     
@@ -264,36 +264,36 @@ async def assign(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     # Single assignment
                     assignment = assignments_list[0]
                     message = (
-                        f"🎅🎁 Your Secret Santa assignment:\n\n"
+                        f"🎅🎁✨ Your Secret Santa assignment:\n\n"
                         f"You ({assignment['giver_name']}) are gifting to:\n"
-                        f"👤 {assignment['gives_to']}"
+                        f"🎅 {assignment['gives_to']} 🎄"
                     )
                     if assignment['type'] == "child":
-                        message += "\n\n(This is a kid without Telegram)"
+                        message += "\n\n(This is a kid without Telegram) 🎁"
                 else:
                     # Multiple assignments (adult + kid/kids)
-                    message = "🎅🎁 Your Secret Santa assignments:\n\n"
+                    message = "🎅🎁✨ Your Secret Santa assignments:\n\n"
                     for assignment in assignments_list:
                         if assignment['giver_name'] in data.adults.values():
                             # This is an adult assignment
-                            message += f"👤 You ({assignment['giver_name']}) are gifting to:\n   {assignment['gives_to']}\n\n"
+                            message += f"🎅 You ({assignment['giver_name']}) are gifting to:\n   {assignment['gives_to']} 🎄\n\n"
                         else:
                             # This is a kid assignment
-                            message += f"👶 {assignment['giver_name']} is gifting to:\n   {assignment['gives_to']}\n\n"
+                            message += f"🎁 {assignment['giver_name']} is gifting to:\n   {assignment['gives_to']} 🎁\n\n"
                 
                 await context.bot.send_message(chat_id=uid, text=message)
             except Exception as e:
                 logger.error(f"Error sending message to user {uid}: {e}")
         
         await update.message.reply_text(
-            f"✅ Assignments sent out!\n"
-            f"Let the mysterious generosity begin.\n\n"
-            f"Total participants: {total_participants}"
+            f"✅ Assignments sent out! 🎁🎉\n"
+            f"Let the mysterious generosity begin. 🎅🎄✨\n\n"
+            f"Total participants: {total_participants} 🎁"
         )
     else:
         await update.message.reply_text(
-            "❌ Something went wrong during assignments.\n"
-            "Try again? Or try tea first."
+            "❌ Something went wrong during assignments. 🎄\n"
+            "Try again? Or try tea first. 🎅"
         )
 
 
@@ -303,16 +303,16 @@ async def my_assignment(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if not data.assigned:
         await update.message.reply_text(
-            "⏳ Assignments aren't ready yet.\n"
-            "Waiting on the admin to hit the button."
+            "⏳ Assignments aren't ready yet. 🎄\n"
+            "Waiting on the admin to hit the button. 🎅"
         )
         return
     
     # Get all assignments for this user
     if user_id not in data.assignments or not data.assignments[user_id]:
         await update.message.reply_text(
-            "❌ You don't seem to be in the game.\n"
-            "Try /im_in first."
+            "❌ You don't seem to be in the game. 🎁\n"
+            "Try /im_in first. ✨"
         )
         return
     
@@ -323,22 +323,22 @@ async def my_assignment(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Single assignment
         assignment = assignments_list[0]
         message = (
-            f"🎅🎁 Your Secret Santa assignment:\n\n"
+            f"🎅🎁✨ Your Secret Santa assignment:\n\n"
             f"You ({assignment['giver_name']}) are gifting to:\n"
-            f"👤 {assignment['gives_to']}"
+            f"👤 {assignment['gives_to']} 🎄"
         )
         if assignment['type'] == "child":
-            message += "\n\n(This is a kid without Telegram)"
+            message += "\n\n(This is a kid without Telegram) 🎁"
     else:
         # Multiple assignments (adult + kid/kids)
-        message = "🎅🎁 Your Secret Santa assignments:\n\n"
+        message = "🎅🎁✨ Your Secret Santa assignments:\n\n"
         for assignment in assignments_list:
             if assignment['giver_name'] in data.adults.values():
                 # This is an adult assignment
-                message += f"👤 You ({assignment['giver_name']}) are gifting to:\n   {assignment['gives_to']}\n\n"
+                message += f"👤 You ({assignment['giver_name']}) are gifting to:\n   {assignment['gives_to']} 🎄\n\n"
             else:
                 # This is a kid assignment
-                message += f"👶 {assignment['giver_name']} is gifting to:\n   {assignment['gives_to']}\n\n"
+                message += f"👶 {assignment['giver_name']} is gifting to:\n   {assignment['gives_to']} 🎁\n\n"
     
     await update.message.reply_text(message)
 
@@ -349,7 +349,7 @@ async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if ADMIN_ID and user_id != ADMIN_ID:
         await update.message.reply_text(
-            "❌ Only admins can do this. Democracy is limited here."
+            "❌ Only admins can do this. Democracy is limited here. 🎅🎄"
         )
         return
     
@@ -359,14 +359,14 @@ async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data.assigned = False
     
     await update.message.reply_text(
-        "✅ Everything's been wiped.\n"
-        "Fresh start, clean slate, empty list."
+        "✅ Everything's been wiped. 🎁\n"
+        "Fresh start, clean slate, empty list. ✨🎄"
     )
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Cancel current operation"""
-    await update.message.reply_text("❌ Got it. Canceled.\nSometimes giving up is also a choice.")
+    await update.message.reply_text("❌ Got it. Canceled. 🎄\nSometimes giving up is also a choice. 🎅")
     return ConversationHandler.END
 
 
@@ -374,15 +374,15 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Help command"""
     help_text = (
         "📖 Commands overview:\n\n"
-        "/start – Start the bot\n"
-        "/im_in – Join the game\n"
-        "/add_small_human – Add a child (no Telegram needed)\n"
-        "/who_are_we – View all participants\n"
-        "/make_it_random – Assign gift pairs (admin only)\n"
-        "/my_mission – See who you're buying for\n"
-        "/reset – Reset everything (admin only)\n"
-        "/help – You're here\n\n"
-        "💡 Note: Kids without Telegram can still play — just register them, and their assignment will go to the adult who added them."
+        "/start – Start the bot 🎄\n"
+        "/im_in – Join the game 🎅\n"
+        "/add_small_human – Add a child (no Telegram needed) 🎁\n"
+        "/who_are_we – View all participants ⛄\n"
+        "/make_it_random – Assign gift pairs (admin only) 🎀\n"
+        "/my_mission – See who you're buying for 🦌\n"
+        "/reset – Reset everything (admin only) 🎄\n"
+        "/help – You're here 🎅\n\n"
+        "💡 Note: Kids without Telegram can still play — just register them, and their assignment will go to the adult who added them. 🎁➡️🎅"
     )
     await update.message.reply_text(help_text)
 
