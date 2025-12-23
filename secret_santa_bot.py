@@ -114,7 +114,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         welcome_text = (
             f"Hey, {name}! 🎁🎄✨\n\n"
-            "This is MaNYGA — Secret Santa for people who love giving gifts... and pretending it's anonymous. 🎅🎁\n\n"
+            "This is MaNYGA (Make New Year Great Again) — Secret Santa for people who love giving gifts... and pretending it's anonymous. 🎅🎁\n\n"
             "Here's how it works:\n\n"
             "/im_in – I'm playing 🎄\n"
             "/add_small_human – Add a kid without Telegram 🎅\n"
